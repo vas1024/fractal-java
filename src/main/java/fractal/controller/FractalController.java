@@ -17,11 +17,20 @@ public class FractalController {
     }
 
     @GetMapping("/")
-    public String index(@RequestParam(defaultValue = "10") int depth, Model model) {
+    public String index(
+            @RequestParam(defaultValue = "10") int depth,
+            @RequestParam(defaultValue = "25") double angleStep,
+            @RequestParam(defaultValue = "0.75") double reduction,
+            Model model) {
 
-        var lines = fractalService.generateTree(400, 600, -90, 150, depth);
+        var lines = fractalService.generateTree(400, 600, -90, 150, depth, angleStep, reduction);
+
         model.addAttribute("lines", lines);
         model.addAttribute("currentDepth", depth);
+        model.addAttribute("currentAngle", angleStep);
+        model.addAttribute("currentReduction", reduction);
+
         return "fractal";
     }
+
 }

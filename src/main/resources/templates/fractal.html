@@ -1,28 +1,111 @@
 <!DOCTYPE html>
-<html xmlns:th="http://thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Java Fractal Tree</title>
     <style>
-        body { background: #f0f0f0; font-family: sans-serif; text-align: center; }
-        svg { background: white; border: 1px solid #ccc; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        line { stroke: #2c3e50; stroke-width: 1; stroke-linecap: round; }
+        /* Общие настройки страницы */
+        body {
+            background: #f0f0f0;
+            font-family: sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            overflow: hidden; /* Чтобы не скроллилась сама страница */
+        }
+
+        /* Контейнер-рамка */
+        .canvas-container {
+            width: 100%;
+            height: calc(100vh - 250px); /* Высота на весь экран минус место под форму */
+            background: #e8e8e8; /* Серый фон, чтобы видеть границы */
+            border: 2px solid #aaa;
+            margin-top: 20px;
+            overflow: hidden;
+            position: relative;
+            touch-action: none; /* Важно для зума */
+            cursor: grab;
+        }
+
+        /* Сам SVG */
+        svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background: white;
+        }
+
+        /* Стиль линий фрактала */
+        line {
+            stroke: #2c3e50;
+            stroke-width: 1.5;
+            stroke-linecap: round;
+        }
+
+        form div { margin: 8px 0; }
+        .canvas-container:active { cursor: grabbing; }
     </style>
 </head>
 <body>
+
 <h1>Векторный фрактал на Java</h1>
 
 <form action="/" method="get">
-    Глубина рекурсии:
-    <input type="number" name="depth" th:value="${currentDepth}" min="1" max="15">
-    <button type="submit">Отрисовать</button>
+    <div>
+        Глубина (1-15):
+        <input type="range" name="depth" min="1" max="15" th:value="${currentDepth}" onchange="this.form.submit()">
+        <span th:text="${currentDepth}"></span>
+    </div>
+    <div>
+        Угол (0-90°):
+        <input type="range" name="angleStep" min="0" max="90" th:value="${currentAngle}" onchange="this.form.submit()">
+        <span th:text="${currentAngle}"></span>°
+    </div>
+    <div>
+        Сжатие (0.1-0.9):
+        <input type="range" name="reduction" min="0.1" max="0.9" step="0.05" th:value="${currentReduction}" onchange="this.form.submit()">
+        <span th:text="${currentReduction}"></span>
+    </div>
 </form>
-<br>
 
-<!-- Отрисовка линий через SVG -->
-<svg width="800" height="700">
-    <line th:each="l : ${lines}"
-          th:x1="${l.x1}" th:y1="${l.y1}"
-          th:x2="${l.x2}" th:y2="${l.y2}" />
-</svg>
+<div class="canvas-container">
+    <!-- Увеличили viewBox по высоте до 1000, чтобы дерево не упиралось в пол -->
+    <svg id="fractal-svg" viewBox="0 -100 800 1100" preserveAspectRatio="xMidYMid meet">
+        <line th:each="l : ${lines}"
+              th:x1="${l.x1}" th:y1="${l.y1}"
+              th:x2="${l.x2}" th:y2="${l.y2}" />
+    </svg>
+</div>
+
+<!-- Подключаем Panzoom -->
+<script src="https://unpkg.com/@panzoom/panzoom@4.6.2/dist/panzoom.min.js"></script>
+
+<script>
+    const elem = document.getElementById('fractal-svg');
+    const container = elem.parentElement;
+
+    // Инициализация
+    const panzoom = Panzoom(elem, {
+        maxScale: 50,
+        minScale: 0.1,
+        // Удален contain: 'outside', чтобы можно было двигать как угодно
+    });
+
+    // Зум колесиком мыши
+    container.addEventListener('wheel', panzoom.zoomWithWheel);
+
+    // Обработка перетаскивания
+    container.addEventListener('pointerdown', (event) => {
+        panzoom.handleDown(event);
+    });
+
+    document.addEventListener('pointermove', (event) => {
+        panzoom.handleMove(event);
+    });
+
+    document.addEventListener('pointerup', (event) => {
+        panzoom.handleUp(event);
+    });
+</script>
+
 </body>
 </html>
