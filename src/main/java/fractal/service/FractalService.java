@@ -1,7 +1,11 @@
+package fractal.service;
 
+
+import fractal.config.Line;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
+
 
 @Service
 public class FractalService {
