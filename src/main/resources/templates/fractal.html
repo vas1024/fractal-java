@@ -69,10 +69,11 @@
 
 <div class="canvas-container">
     <!-- Увеличили viewBox по высоте до 1000, чтобы дерево не упиралось в пол -->
-    <svg id="fractal-svg" viewBox="0 -100 800 1100" preserveAspectRatio="xMidYMid meet">
+    <svg id="fractal-svg" viewBox="0 -800 800 1800" preserveAspectRatio="xMidYMid meet">
         <line th:each="l : ${lines}"
               th:x1="${l.x1}" th:y1="${l.y1}"
-              th:x2="${l.x2}" th:y2="${l.y2}" />
+              th:x2="${l.x2}" th:y2="${l.y2}"
+              th:style="'stroke-width:' + ${l.width} + 'px'" />
     </svg>
 </div>
 
